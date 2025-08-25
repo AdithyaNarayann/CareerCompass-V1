@@ -1,0 +1,40 @@
+# === Python ===
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.sqlite3
+
+# Virtual environment
+venv/
+.env/
+.venv/
+ENV/
+env/
+
+# === Flask / Uploads ===
+instance/
+uploads/
+
+# === User Data / Secrets ===
+users.json
+*.db
+*.sqlite
+*.log
+
+# API keys / environment files
+*.env
+config.json
+secrets.json
+
+# === System / IDE ===
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# === Generated Files ===
+*.pdf
+*.docx

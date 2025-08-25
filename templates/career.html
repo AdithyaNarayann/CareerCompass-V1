@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Guidance Chat</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2, #1abc9c);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #fff;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      
+    }
+
+    .chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+
+    #chatbox {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      scroll-behavior: smooth;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 0px;
+    }
+
+    .message {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 15px;
+      line-height: 1.4;
+      word-wrap: break-word;
+      display: inline-block;
+    }
+
+    .user {
+      background: rgba(255,255,255,0.3);
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
+
+    .ai {
+      background: rgba(0,0,0,0.3);
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    #userInput {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      outline: none;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 12px;
+      background: #667eea;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #4c5ed9;
+    }
+
+    /* Scrollbar styling */
+    #chatbox::-webkit-scrollbar {
+      width: 6px;
+    }
+    #chatbox::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 6px;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2, #1abc9c);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #fff;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .chat-container {
+      flex: 1; /* takes all remaining space */
+      display: flex;
+      flex-direction: column;
+      margin: 20px;
+      
+      border-radius: 20px;
+      padding: 15px;
+      
+      overflow: hidden;
+    }
+
+    #chatbox {
+      flex: 1; /* scrollable */
+      overflow-y: auto;
+      padding: 10px;
+      border-radius: 12px;
+      
+      scroll-behavior: smooth;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 0;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 -4px 10px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">Career Guidance Chat</div>
+
+  <div class="chat-container">
+    <div id="chatbox"></div> <!-- scrollable messages -->
+  </div>
+
+  <div class="input-area"> <!-- always fixed at bottom -->
+    <input type="text" id="userInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendMessage()">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const msg = input.value.trim();
+      if (!msg) return;
+      const chatbox = document.getElementById("chatbox");
+
+      // User message
+      const userMsg = document.createElement("div");
+      userMsg.className = "message user";
+      userMsg.innerHTML = `<b>You:</b> ${msg}`;
+      chatbox.appendChild(userMsg);
+      input.value = "";
+      chatbox.scrollTop = chatbox.scrollHeight;
+
+      // Fetch AI response
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+
+        const aiMsg = document.createElement("div");
+        aiMsg.className = "message ai";
+        aiMsg.innerHTML = `<b>AI:</b> ${data.reply}`;
+        chatbox.appendChild(aiMsg);
+        chatbox.scrollTop = chatbox.scrollHeight;
+      } catch (err) {
+        const errMsg = document.createElement("div");
+        errMsg.className = "message ai";
+        errMsg.innerHTML = `<b>AI:</b> Error fetching response`;
+        chatbox.appendChild(errMsg);
+      }
+    }
+  </script>
+</body>
+</html>

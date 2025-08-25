@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Resume Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    /* General body & background */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2, #1abc9c);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+
+    /* Container for form & analysis */
+    .container {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 700px;
+      padding: 40px 30px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 25px;
+      font-weight: bold;
+    }
+
+    h2 {
+      text-align: center;
+      margin: 30px 0 15px;
+      font-size: 1.5rem;
+      color: #fff;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      resize: vertical;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 0.95rem;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 30px;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    /* Analysis box */
+    #analysisBox {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+      color: #fff;
+      line-height: 1.5;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    }
+
+    /* Bullet points inside analysis */
+    #analysisBox li {
+      margin-left: 20px;
+      list-style-type: disc;
+    }
+
+    /* Responsive tweaks */
+    @media(max-width: 768px){
+      .container {
+        padding: 30px 20px;
+      }
+      h1 {
+        font-size: 1.7rem;
+      }
+      h2 {
+        font-size: 1.3rem;
+      }
+    }
+    #analysisBox::-webkit-scrollbar {
+      width: 4px; /* very thin */
+    }
+
+    #analysisBox::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1); /* subtle track */
+      border-radius: 10px;
+    }
+
+    #analysisBox::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3); /* thin visible thumb */
+      border-radius: 10px;
+    }
+
+    /* Firefox */
+    #analysisBox {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.3) rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Resume Analyzer</h1>
+
+    <form id="analyzeForm" enctype="multipart/form-data">
+      <label>Upload Resume (PDF or DOCX)</label>
+      <input type="file" name="resume" accept=".pdf,.doc,.docx" required>
+
+      <label>Paste Job Description</label>
+      <textarea name="jobDescription" placeholder="Enter job description here..." required></textarea>
+
+      <button type="submit">Analyze Resume</button>
+    </form>
+
+    <h2>Resume Analysis</h2>
+    <div id="analysisBox">
+      <!-- Gemini output will appear here -->
+    </div>
+  </div>
+  <script>
+    document.getElementById("analyzeForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      let formData = new FormData(this);
+
+      let res = await fetch("/analyze_resume", {
+        method: "POST",
+        body: formData
+      });
+
+      let data = await res.json();
+
+      if (data.error) {
+        document.getElementById("analysisBox").innerHTML = `<p style="color:red;">${data.error}</p>`;
+        return;
+      }
+
+      // Basic formatting if Gemini outputs structured text
+      let formatted = data.analysis
+        .replace(/ATS Score:/gi, "<h3>📊 ATS Score</h3>")
+        .replace(/Suggestions:/gi, "<h3>💡 Suggestions</h3>")
+        .replace(/Job Opportunities:/gi, "<h3>💼 Job Opportunities</h3>")
+        .replace(/- /g, "<li>")
+        .replace(/\n/g, "</li>\n");
+
+      document.getElementById("analysisBox").innerHTML = formatted;
+    });
+  </script>
+</body>
+</html>
